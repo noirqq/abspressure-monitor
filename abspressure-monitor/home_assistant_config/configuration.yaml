@@ -1,0 +1,66 @@
+# Фрагмент для вашего configuration.yaml
+# ЗАМЕНИТЕ значения-заглушки (YOUR_...) вашими реальными данными.
+# НИКОГДА не выкладывайте реальные API-ключи и пароли в публичный репозиторий!
+
+# Рекомендуемые настройки логгера для отладки
+logger:
+  default: info
+  logs:
+    custom_components.pyscript: info
+    homeassistant.components.influxdb: debug # Для диагностики проблем с InfluxDB
+
+# Настройка Telegram бота
+telegram_bot:
+  - platform: polling
+    api_key: "YOUR_TELEGRAM_BOT_API_KEY" # <--- ЗАМЕНИТЬ
+    allowed_chat_ids:
+      - YOUR_CHAT_ID # <--- ЗАМЕНИТЬ (число)
+
+# Настройка уведомителя Telegram
+notify:
+  - platform: telegram
+    name: telegram # Сервис будет notify.telegram
+    chat_id: YOUR_CHAT_ID # <--- ЗАМЕНИТЬ (число)
+
+# Настройка InfluxDB
+influxdb:
+  host: localhost # Или IP-адрес вашего сервера InfluxDB
+  port: 8086
+  database: "hapressuredata" # Имя вашей базы данных
+  username: "your_influxdb_username" # <--- ЗАМЕНИТЬ
+  password: "your_influxdb_password" # <--- ЗАМЕНИТЬ
+  include:
+    entities:
+      - sensor.openweathermap_pressure # <--- Убедитесь, что это ваш сенсор давления
+
+# Вспомогательные элементы для автоматических уведомлений
+input_number:
+  auto_pressure_alert_threshold:
+    name: Порог авто-уведомления о давлении
+    min: 0.5
+    max: 10.0
+    step: 0.1
+    unit_of_measurement: "гПа/час"
+    mode: slider 
+    icon: mdi:speedometer
+
+  auto_pressure_check_window_hours:
+    name: Окно проверки для авто-уведомлений (часы)
+    min: 1
+    max: 24 # Можете изменить
+    step: 1
+    unit_of_measurement: "ч" 
+    mode: slider 
+    icon: mdi:clock-time-four-outline
+
+input_datetime:
+  auto_pressure_last_alert_time:
+    name: Время последнего авто-уведомления о давлении
+    has_date: true
+    has_time: true
+    icon: mdi:history
+
+# Не забудьте также настроить pyscript:
+# pyscript:
+#   allow_all_imports: true
+#   hass_is_global: true

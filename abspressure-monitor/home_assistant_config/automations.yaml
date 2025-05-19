@@ -1,0 +1,46 @@
+# Фрагмент для вашего automations.yaml
+
+- id: 'telegram_current_pressure_static' # Пример ID, сделайте уникальным
+  alias: 'Telegram: Текущее давление (команда /pressure)'
+  trigger:
+    - platform: event
+      event_type: telegram_command
+      event_data:
+        command: '/pressure'
+  action:
+    - service: notify.telegram # Убедитесь, что это ваше имя сервиса
+      data:
+        message: >
+          📊 Текущее давление: {{ states("sensor.openweathermap_pressure") }} гПа 
+          # ЗАМЕНИТЕ sensor.openweathermap_pressure, если ваш сенсор называется иначе
+        data: # Для Markdown
+          parse_mode: markdown
+
+- id: 'telegram_pressure_trend_analysis_cmd' # Пример ID, сделайте уникальным
+  alias: 'Telegram: Анализ тренда давления (команда /trend)'
+  trigger:
+    - platform: event
+      event_type: telegram_command
+      event_data:
+        command: '/trend'
+  action:
+    - service: pyscript.get_pressure_analysis_for_telegram # Имя сервиса из Pyscript
+      data_template:
+        hours_str: >
+          {% if trigger.event.data.args %}
+            {{ trigger.event.data.args[0] }}
+          {% else %}
+            {{ None }}
+          {% endif %}
+        chat_id: "{{ trigger.event.data.chat_id }}"
+        user_id: "{{ trigger.event.data.user_id }}"
+  mode: queued
+
+- id: 'auto_pressure_alert_periodic_check' # Пример ID, сделайте уникальным
+  alias: 'Автоматическая проверка изменения давления для уведомлений'
+  trigger:
+    - platform: time_pattern
+      minutes: "/30" # Проверять каждые 30 минут
+  action:
+    - service: pyscript.check_pressure_for_auto_alert # Имя сервиса из Pyscript
+  mode: single
